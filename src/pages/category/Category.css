@@ -1,0 +1,56 @@
+.Category {
+  position: relative;
+  width: 1440px;
+  height: 1513px;
+  font-family: "Raleway", sans-serif;
+}
+
+.category-wrapper {
+  position: absolute;
+  top: 80px;
+  width: 1440px;
+  padding: 100px;
+  box-sizing: border-box;
+}
+
+.category-name {
+  font-style: normal;
+  font-weight: normal;
+  font-size: 42px;
+  line-height: 160%;
+  z-index: 100;
+  text-transform: capitalize;
+}
+
+.products {
+  padding: 0px;
+  margin-top: 100px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.overlay {
+  position: absolute;
+  width: 1440px;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: rgba(57, 55, 72, 0.22);
+  z-index: 10;
+  opacity: 1;
+  transition: all 400ms ease-in-out;
+}
+
+.overlay2 {
+  position: absolute;
+  width: 1440px;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background-color: rgba(57, 55, 72, 0.22);
+  z-index: 10;
+  opacity: 1;
+  
+}

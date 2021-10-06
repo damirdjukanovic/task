@@ -1,0 +1,92 @@
+.ProductCard {
+  width: 386px;
+  height: 444px;
+  background: #FFFFFF;
+  margin-bottom: 90px;
+  margin-right: 20px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+
+.ProductCard:hover {
+  filter: drop-shadow(0px 4px 35px rgba(168, 172, 176, 0.19));
+  box-shadow: 0px 4px 35px rgba(168, 172, 176, 0.19);
+}
+
+.product-img-wrapper {
+  position: relative;
+}
+
+.out-of-stock {
+  opacity: 0.5;
+}
+
+
+.out-of-stock-text {
+  position: absolute;
+  top: calc(50% - 19.19px);
+  left: calc(50% - 86.06px);
+  font-family: "Raleway", sans-serif;
+  font-style: normal;
+  font-weight: normal;
+  font-size: 24px;
+  line-height: 160%;
+  color: #8D8F9A;
+  text-transform: uppercase;
+}
+
+.product-circle{
+  opacity: inherit;
+  background-color: #5ECE7B;
+  position: absolute;
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  right: 15px;
+  bottom: -26px;
+  filter: drop-shadow(0px 4px 11px rgba(29, 31, 34, 0.1));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 300ms ease-in-out;
+  opacity: 0;
+}
+
+.ProductCard:hover .product-circle {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+  
+}
+
+.product-card-wrapper{
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-img{
+  object-fit: cover;
+  width: 354px;
+height: 330px;
+opacity: inherit;
+}
+
+.product-name {
+  height: 29px;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 160%;
+  margin-block-end: 0px;
+  opacity: inherit;
+}
+
+.product-price {
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 160%;
+  margin-block-start: 0px;
+  margin-block-end: 0px;
+  opacity: inherit;
+}

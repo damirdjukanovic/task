@@ -1,25 +1,41 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import Main from "./Main";
+import {
+  BrowserRouter as Router,
+} from "react-router-dom";
+import {ApolloClient, InMemoryCache, ApolloProvider, HttpLink, from} from "@apollo/client";
+import {onError} from "@apollo/client/link/error";
+import store from "./store";
+import { Provider } from 'react-redux';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const errorLink = onError(({graphqlErrors, networkError}) => {
+  if(graphqlErrors) {
+    graphqlErrors.map(({message, location, path}) => {
+     return console.log(`GraphQL error : ${message}`)
+    })
+  }
+})
+const link = from([
+  errorLink,
+  new HttpLink({uri: "http://localhost:4000/"})
+])
+
+export const client = new ApolloClient({
+  link: link,
+  cache: new InMemoryCache()
+})
+
+
+export default class App extends Component {
+  render() {
+    return (
+      <Provider store={store}>
+        <Router>
+          <ApolloProvider client={client}>
+            <Main />
+          </ApolloProvider>
+        </Router>
+      </Provider>
+    )
+  }
 }
-
-export default App;
