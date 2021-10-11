@@ -36,7 +36,6 @@ class Currency extends PureComponent {
 
   handleClickOutside = (event) => {
     const domNode = ReactDOM.findDOMNode(this);
-    console.log(domNode);
 
     if (!domNode || !domNode.contains(event.target)) {
       this.handleCurrClose();
@@ -63,7 +62,7 @@ class Currency extends PureComponent {
         {({ loading, data }) => {
           if (loading) return "";
           return data.currencies.map((c) => (
-            <p onClick={() => setCurrency(c)}>{`${this.signSymbol(c)} ${c}`}</p>
+            <p key={c} onClick={() => setCurrency(c)}>{`${this.signSymbol(c)} ${c}` }</p>
           ));
         }}
       </Query>
