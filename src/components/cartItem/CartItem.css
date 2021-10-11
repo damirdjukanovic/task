@@ -1,6 +1,6 @@
 .CartItem {
-  width: 1098px;
-  height: 186px;
+  max-width: 1098px;
+  min-height: 186px;
  
   margin-top: 15px;
   position: relative;
@@ -49,11 +49,28 @@ margin-top: 15px;
 
 .cart-item-sizes {
 
-  position: absolute;
-  left: 0;  
-  bottom: 0;
+  margin-top: 35px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cart-item-attributes-container {
   display: flex;
   flex-direction: row;
+  align-items: center;
+  margin-bottom: 20px
+}
+
+.flip {
+  transform: scaleX(-1);
+}
+
+.cart-item-attribute-name {
+    font-family: "Raleway", sans-serif;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 23px;
+    line-height: 27px;
 }
 
 .selected-cart {
@@ -66,7 +83,6 @@ margin-top: 15px;
 }
 
 .cart-item-size {
-  cursor: pointer;
   width: 63px;
   height: 45px;
   border: 1px solid #1D1F22;
@@ -79,6 +95,11 @@ margin-top: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-left: 15px;
+}
+
+.cart-item-size p {
+  color: white
 }
 
 .cart-item-size:not(:first-of-type){
@@ -91,7 +112,7 @@ margin-top: 15px;
   object-fit: contain;
   position: absolute;
   right: 0;
-  top: 0;
+  top: calc(50% - 186px / 2);
 }
 
 .plus-square, .minus-square {
@@ -139,7 +160,7 @@ margin-top: 15px;
 .arrow-left-svg {
   position: absolute;
   top: 50%;
-  right: 125px;
+  right: 120px;
   cursor: pointer;
 } 
  
@@ -147,7 +168,7 @@ margin-top: 15px;
   cursor: pointer;
   position: absolute;
   top: 50%;
-  right: 5px
+  right: 13px
 } 
 
 .cart-item-right p {

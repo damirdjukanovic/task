@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import "./CartItem.css";
 import CartMinus from "./Vectorcart-minus.svg";
 import CartPlus from "./Vectorcart-plus.svg"
@@ -8,12 +8,13 @@ import {connect} from "react-redux";
 import PropTypes from "prop-types"; 
 import {removeFromCart, addSelected, addAmount, deductAmount} from "../../actions/cartActions";
 
-class CartItem extends Component {
+class CartItem extends PureComponent {
 
   constructor(props){
     super(props);
     this.state = {
-      imgIndex: 0
+      imgIndex: 0,
+      images:null
     }
     this.changePictureLeft = this.changePictureLeft.bind(this);
     this.changePictureRight = this.changePictureRight.bind(this);
@@ -21,60 +22,105 @@ class CartItem extends Component {
 
   changePictureRight(arr){
     if(arr.length - 1 !== this.state.imgIndex) {
-      this.setState({imgIndex: this.state.imgIndex + 1})
+        this.setState({imgIndex: this.state.imgIndex + 1})
     }
   }
 
   changePictureLeft(arr){
-    if(this.state.imgIndex !== 0) {
-      this.setState({imgIndex: this.state.imgIndex - 1})
+      if(this.state.imgIndex !== 0){
+        this.setState({imgIndex: this.state.imgIndex - 1})
     }
   }
 
   componentDidUpdate(){
-    if(this.props.product.amount === 0) {
-      this.props.removeFromCart(this.props.product.id);
+    const {product, removeFromCart} = this.props;
+    if(product.amount === 0) {
+      removeFromCart(product.id);
     }
+  }
+
+  renderAttributes(a){
+    if(a.name === "Touch ID in keyboard"){
+    return (
+      <div className="class-overlay-sizes-attributes touchID">
+        <p className="cart-overlay-attribute">Touch ID</p>
+        <div className="cart-overlay-size">
+          <p>{a.value}</p>
+        </div>
+      </div>)
+    } else if(a.name === "With USB 3 ports"){
+      return (
+        <div className="class-overlay-sizes-attributes usb">
+          <p className="cart-overlay-attribute">Usb 3 ports</p>
+          <div className="cart-overlay-size">
+            <p>{a.value}</p>
+          </div>
+        </div>)
+      } else return "";
+    }
+
+  renderItems(){
+    const {product} = this.props;
+    const sortedArr = product.selected;
+    sortedArr.sort((a, b) => b.name.length - a.name.length);
+
+    return (
+      sortedArr.map(a => (
+        <div className="cart-item-attributes-container" key={a.name}>
+          <p className="cart-item-attribute-name">{a.name + ":"}</p>  
+          <div className="cart-item-size" style={{background: a.name === "Color" ? a.value : "#1D1F22"}}>
+            <p>{a.name === "Color" ? "" : a.value }</p>
+          </div>
+          </div>
+      ))
+    )
+  }
+
+  renderImages(){
+    const {product} = this.props;
+
+    return(
+      <React.Fragment>
+      {this.state.imgIndex !== 0 && 
+        <img className="arrow-left-svg" src={arrowLeft} alt="arrow left" onClick={() => this.changePictureLeft(product.gallery)}/>}    
+      {(product.gallery.length - 1 !== this.state.imgIndex) && 
+        <img className="arrow-right-svg" src={arrowRight} alt="arrow right" onClick={() => this.changePictureRight(product.gallery)}/>}
+      </React.Fragment>
+    )
   }
   
   render() {
+    const {product, currency, sign, deductAmount} = this.props;
 
-    const index = this.props.product.attributes.findIndex(p => p.type === "text");
-    const str1 = this.props.product.name.substr(0, this.props.product.name.indexOf(" "));
-    const str2 = this.props.product.name.substr(this.props.product.name.indexOf(" ") + 1);
-    const price = this.props.product.prices.find(p => p.currency === this.props.currency)
-    let total = price.amount * this.props.product.amount;
+    const str1 = product.name.substr(0, product.name.indexOf(" "));
+    const str2 = product.name.substr(product.name.indexOf(" ") + 1);
+    const price = product.prices.find(p => p.currency === currency)
+    let total = (price.amount * product.amount).toFixed(2);
+    const renderNameFirst = str1.length > 0 ? str1 : str2;
+    const renderNameSecond = str1.length > 0 ? str2 : "";
     return (
       <div className="cart-main">
       <hr />
         <div className="CartItem">
           <div className="cart-item-left">
-            <p className="cart-item-name">{str1.length > 0 ? str1 : str2}</p>
-            <p className="cart-item-span">{str1.length > 0 ? str2 : ""}</p>
-            <p className="cart-item-price">{this.props.sign}{total.toFixed(2)}</p>
+            <p className="cart-item-name">{renderNameFirst}</p>
+            <p className="cart-item-span">{renderNameSecond}</p>
+            <p className="cart-item-price">{sign}{total}</p>
             <div className="cart-item-sizes">
-            {
-              this.props.product.attributes[index].items.map(a => (
-              <div className={`cart-item-size ${this.props.product.selected === a.value ? "selected-cart" : ""}`} key={a.value} onClick={() => this.props.addSelected(this.props.product.id, a.value)}>
-                <p>{a.value}</p>
-              </div>
-            ))}
+            {this.renderItems()}
             </div>
           </div>
           <div className="cart-item-right">
-            <img className="cart-item-picture" src={this.props.product.gallery[this.state.imgIndex]} alt="product" />
-            {(this.state.imgIndex !== 0) &&
-              <img className="arrow-left-svg" src={arrowLeft} alt="arrow left" onClick={() => this.changePictureLeft(this.props.product.gallery)}/>}
-            {(this.props.product.gallery.length - 1 !== this.state.imgIndex) && 
-              <img className="arrow-right-svg" src={arrowRight} alt="arrow right" onClick={() => this.changePictureRight(this.props.product.gallery)}/>}
-            <div className="plus-square" onClick={() => this.props.addAmount(this.props.product.id)}>
+            <img className="cart-item-picture" src={product.gallery[this.state.imgIndex]} alt="product" />
+            {this.renderImages()}
+            <div className="plus-square" onClick={() => this.props.addAmount(product.id)}>
               <div className="square-container">
                 <img className="minus-svg" src={CartMinus} alt="plus" />
                 <img className="plus-svg" src={CartPlus} alt="plus" />
               </div>
             </div>
-            <p>{this.props.product.amount}</p>
-            <div className="minus-square" onClick={() => this.props.deductAmount(this.props.product.id)}><img src={CartMinus} alt="minus" /></div>
+            <p>{product.amount}</p>
+            <div className="minus-square" onClick={() => deductAmount(product.id)}><img src={CartMinus} alt="minus" /></div>
           </div>
         </div>
       </div>

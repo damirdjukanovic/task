@@ -1,11 +1,13 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import Category from "./pages/category/Category";
 import ProductDescription from "./pages/productDescription/ProductDescription";
 import Cart from "./pages/cart/Cart";
 import { Switch, Route } from "react-router-dom";
 
-export default class Main extends Component {
+
+export default class Main extends PureComponent {
   render() {
+    
     return (
       <Switch>
         <Route

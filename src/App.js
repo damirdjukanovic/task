@@ -7,6 +7,7 @@ import {ApolloClient, InMemoryCache, ApolloProvider, HttpLink, from} from "@apol
 import {onError} from "@apollo/client/link/error";
 import store from "./store";
 import { Provider } from 'react-redux';
+import {loadProducts} from "./actions/productsActions";
 
 const errorLink = onError(({graphqlErrors, networkError}) => {
   if(graphqlErrors) {
@@ -27,6 +28,9 @@ export const client = new ApolloClient({
 
 
 export default class App extends Component {
+  componentDidMount(){
+    store.dispatch(loadProducts());
+  }
   render() {
     return (
       <Provider store={store}>

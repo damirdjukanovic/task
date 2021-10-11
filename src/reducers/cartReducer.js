@@ -6,13 +6,16 @@ import {
   SET_CURRENCY, 
   ADD_AMOUNT, 
   DEDUCT_AMOUNT,
-  SET_PAGE} from "../actions/types";
+  SET_PAGE,
+  SET_OVERLAY,
+  INCREASE_AMOUNT} from "../actions/types";
 
 const initialState = {
-  products : JSON.parse(window.localStorage.getItem("products")),
+  products : JSON.parse(window.localStorage.getItem("products")) || [],
   currency: "USD",
   sign: "$",
-  page: "clothes"
+  page: "clothes",
+  overlayActive: false,
 }
 
 export default function(state=initialState, action) {
@@ -22,6 +25,11 @@ export default function(state=initialState, action) {
         ...state,
         products: [...state.products, action.payload]
       };
+    case INCREASE_AMOUNT:
+      return {
+        ...state,
+        products: action.payload
+      }; 
     case REMOVE_ITEM:
       return {
         ...state,
@@ -52,7 +60,12 @@ export default function(state=initialState, action) {
         return{
           ...state,
           page: action.payload
-        }  
+        };
+      case SET_OVERLAY: 
+        return{
+          ...state,
+          overlayActive: action.payload
+        }
       default:
         return state;
   }

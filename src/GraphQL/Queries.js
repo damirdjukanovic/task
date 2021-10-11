@@ -51,3 +51,39 @@ export const LOAD_ITEM = gql`
     }
   }
 `;
+
+export const LOAD_ALL_PRODUCTS = gql`
+query load_category{
+  category {
+  	products {
+      id,
+      name,
+      category,
+      inStock,
+      gallery,
+      description,
+      brand,
+      prices{
+        currency,
+        amount
+      },
+      attributes{
+        id,
+        name,
+        type,
+        items{
+          displayValue,
+          value,
+          id
+        }
+      }
+    }
+  }
+}
+`
+
+export const LOAD_CURRENCIES = gql`
+query {
+  currencies
+}
+`

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import "./ProductDescription.css";
 import Header from "../../components/header/Header";
 import { Query } from "@apollo/client/react/components";
@@ -6,23 +6,20 @@ import { LOAD_ITEM } from "../../GraphQL/Queries";
 import { connect } from "react-redux";
 import PropTypes from "prop-types";
 import { addSelected, addToCart } from "../../actions/cartActions";
+import { clearAttributes } from "../../actions/productsActions";
 import Attribute from "../../components/attribute/Attribute";
+import { Parser } from 'html-to-react'
 
-class ProductDescription extends Component {
+class ProductDescription extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      isOverlayActive: false,
       currentImgIndex: 0,
-      sizeSelected: null,
+      sizeSelected: [],
     };
-    this.setIsOverlayActive = this.setIsOverlayActive.bind(this);
     this.setCurrentImgIndex = this.setCurrentImgIndex.bind(this);
     this.handleAttributeClick = this.handleAttributeClick.bind(this);
-  }
-
-  setIsOverlayActive() {
-    this.setState({ isOverlayActive: !this.state.isOverlayActive });
+    this.handleAddToCart = this.handleAddToCart.bind(this);
   }
 
   setCurrentImgIndex(i) {
@@ -30,14 +27,83 @@ class ProductDescription extends Component {
   }
 
   handleAttributeClick(i) {
-    this.setState({ sizeSelected: i });
+    const newSizes = this.state.sizeSelected.filter((s) => s.name !== i.name);
+    this.setState((prevState) => ({
+      sizeSelected: [...newSizes, i],
+    }));
   }
 
-  render() {
-    const { id } = this.props.match.params;
+  handleAddToCart(id, sizeSelected) {
+    const { addToCart, clearAttributes } = this.props;
+    addToCart(id, sizeSelected);
+    clearAttributes(id);
+    this.setState({ sizeSelected: [] });
+  }
 
+  renderImagesList(data) {
+    return (
+      <div className="product-images-list">
+        {data.product.gallery.map((i, index) => (
+          <img
+            key={index}
+            className="product-image-left"
+            src={data.product.gallery[index]}
+            alt="product"
+            onClick={() => this.setCurrentImgIndex(index)}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  renderAttributes(data) {
     return (
       <React.Fragment>
+        {data.product.attributes.length > 0 &&
+          data.product.attributes.map((a) => (
+            <Attribute
+              id={data.product.id}
+              a={a}
+              key={a.name}
+              handleAttributeClick={this.handleAttributeClick}
+            />
+          ))}
+      </React.Fragment>
+    );
+  }
+
+  renderPrice(sign, price) {
+    return (
+      <React.Fragment>
+        <p className="product-description-price">price:</p>
+        <p className="product-description-price-value">
+          {sign}
+          {price.amount}
+        </p>
+      </React.Fragment>
+    );
+  }
+
+  renderButton(data) {
+    return (
+      <button
+        className={`product-description-button ${
+          data.product.inStock === false ? "disabled" : ""
+        }`}
+        onClick={() =>
+          this.handleAddToCart(data.product.id, this.state.sizeSelected)
+        }
+      >
+        add to cart
+      </button>
+    );
+  }
+  render() {
+    const { id } = this.props.match.params;
+    const { history, location, currency, overlayActive, sign } = this.props;
+    return (
+      <React.Fragment>
+        <Header history={history} location={location} />
         <div className="ProductDescription">
           <Query query={LOAD_ITEM} variables={{ id: id }}>
             {({ data, loading }) => {
@@ -50,31 +116,14 @@ class ProductDescription extends Component {
                 data.product.name.indexOf(" ") + 1
               );
               const price = data.product.prices.find(
-                (p) => p.currency === this.props.currency
+                (p) => p.currency === currency
               );
 
               return (
                 <React.Fragment>
-                  <Header
-                    setIsOverlayActive={this.setIsOverlayActive}
-                    history={this.props.history}
-                    location={this.props.location}
-                  />
                   <div className="product-description-body">
-                    {this.state.isOverlayActive && (
-                      <div className="overlay"></div>
-                    )}
-                    <div className="product-images-list">
-                      {data.product.gallery.map((i, index) => (
-                        <img
-                          key={index}
-                          className="product-image-left"
-                          src={data.product.gallery[index]}
-                          alt="product"
-                          onClick={() => this.setCurrentImgIndex(index)}
-                        />
-                      ))}
-                    </div>
+                    {overlayActive && <div className="overlay"></div>}
+                    {this.renderImagesList(data)}
                     <div className="product-description-main">
                       <div className="product-description-main-wrapper">
                         <img
@@ -89,40 +138,12 @@ class ProductDescription extends Component {
                           <p className="product-name-span">
                             {str1.length > 0 ? str2 : ""}
                           </p>
-                          {data.product.attributes.length > 0 &&
-                            data.product.attributes.map((a) => (
-                              <Attribute
-                                id={id}
-                                a={a}
-                                data={data}
-                                handleAttributeClick={this.handleAttributeClick}
-                                key={a.name}
-                              />
-                            ))}
-                          <p className="product-description-price">price:</p>
-                          <p className="product-description-price-value">
-                            {this.props.sign}
-                            {price.amount}
-                          </p>
-                          <button
-                            className={`product-description-button ${
-                              data.product.inStock === false ? "disabled" : ""
-                            }`}
-                            onClick={() =>
-                              this.props.addToCart(
-                                data.product.id,
-                                this.state.sizeSelected
-                              )
-                            }
-                          >
-                            add to cart
-                          </button>
-                          <p
-                            className="product-description-description"
-                            dangerouslySetInnerHTML={{
-                              __html: data.product.description,
-                            }}
-                          ></p>
+                          {this.renderAttributes(data)}
+                          {this.renderPrice(sign, price)}
+                          {this.renderButton(data)}
+                          <div className="product-description-description">
+                            {Parser().parse(data.product.description)}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -142,13 +163,18 @@ ProductDescription.propTypes = {
   sign: PropTypes.string,
   addSelected: PropTypes.func,
   addToCart: PropTypes.func,
+  overlayActive: PropTypes.bool,
+  clearAttributes: PropTypes.func,
 };
 
 const mapStateToProps = (state) => ({
   currency: state.cart.currency,
   sign: state.cart.sign,
+  overlayActive: state.cart.overlayActive,
 });
 
-export default connect(mapStateToProps, { addSelected, addToCart })(
-  ProductDescription
-);
+export default connect(mapStateToProps, {
+  addSelected,
+  addToCart,
+  clearAttributes,
+})(ProductDescription);

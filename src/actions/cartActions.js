@@ -6,6 +6,8 @@ import {
   ADD_AMOUNT,
   DEDUCT_AMOUNT,
   SET_PAGE,
+  SET_OVERLAY,
+  INCREASE_AMOUNT,
 } from "./types";
 import { LOAD_ITEM } from "../GraphQL/Queries";
 import { client } from "../App";
@@ -19,14 +21,36 @@ export const addToCart =
         variables: { id: id },
       })
       .then((res) => {
-        if (getState().cart.products.some((p) => p.id === id)) return;
         if (res.data.product.inStock === false) return;
-        let products = [...getState().cart.products];
-        products.push({ ...res.data.product, selected: size, amount: 1 });
+        if (
+          size &&
+          size.length === 0 &&
+          res.data.product.attributes.length !== 0
+        )
+          return;
+        if (getState().cart.products.some((p) => p.id === id)) {
+          const product = getState().cart.products.find((p) => p.id === id);
+          const products = [...getState().cart.products];
+          const idx = products.indexOf(product);
+          product.amount = product.amount + 1;
+          product.selected = size;
+          products.splice(idx, 1, product);
+          window.localStorage.setItem("products", JSON.stringify(products));
+          return dispatch({
+            type: INCREASE_AMOUNT,
+            payload: products,
+          });
+        }
+        const products = [...getState().cart.products];
+        products.push({ ...res.data.product, selected: size ? [...size] : [], amount: 1 });
         window.localStorage.setItem("products", JSON.stringify(products));
         return dispatch({
           type: ADD_TO_CART,
-          payload: { ...res.data.product, selected: size, amount: 1 },
+          payload: {
+            ...res.data.product,
+            selected: size ? [...size] : [],
+            amount: 1,
+          },
         });
       });
   };
@@ -115,5 +139,12 @@ export const setPage = (page) => (dispatch) => {
   dispatch({
     type: SET_PAGE,
     payload: page,
+  });
+};
+
+export const setOverlay = (value) => (dispatch) => {
+  dispatch({
+    type: SET_OVERLAY,
+    payload: value,
   });
 };
